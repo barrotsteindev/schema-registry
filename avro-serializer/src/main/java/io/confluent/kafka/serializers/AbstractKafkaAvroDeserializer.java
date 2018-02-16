@@ -118,7 +118,7 @@ public abstract class AbstractKafkaAvroDeserializer extends AbstractKafkaAvroSer
     try {
       ByteBuffer buffer = getByteBuffer(payload);
       id = buffer.getInt();
-      String subject = includeSchemaAndVersion ? getSubjectName(topic, isKey, null) : null;
+      String subject = null;
       Schema schema = schemaRegistry.getBySubjectAndId(subject, id);
       int length = buffer.limit() - 1 - idSize;
       final Object result;
@@ -149,6 +149,7 @@ public abstract class AbstractKafkaAvroDeserializer extends AbstractKafkaAvroSer
         // Converter to let a version provided by a Kafka Connect source take priority over the
         // schema registry's ordering (which is implicit by auto-registration time rather than
         // explicit from the Connector).
+        subject = getSubjectName(topic, isKey, result);
         Integer version = schemaRegistry.getVersion(subject, schema);
         if (schema.getType() == Schema.Type.UNION) {
           // Can't set additional properties on a union schema since it's just a list, so set it
